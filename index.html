@@ -103,6 +103,22 @@
             transform: translateY(0);
         }
 
+        /* Hinweis-Text für Klick */
+        .click-hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 1rem;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
         /* Content Cards */
         .content-card {
             background: rgba(255, 255, 255, 0.95);
@@ -302,6 +318,20 @@
             transform: scale(1.2);
         }
 
+        /* Keyboard hints */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
@@ -336,6 +366,7 @@
                     "Die beste Art, die Zukunft vorherzusagen, ist sie zu erfinden."<br>
                     <small>- Alan Kay</small>
                 </div>
+                <div class="click-hint" id="clickHint0">👆 Klick für Weisheit</div>
             </div>
         </div>
 
@@ -371,6 +402,7 @@
                     "Handle nur nach derjenigen Maxime, durch die du zugleich wollen kannst,<br>dass sie ein allgemeines Gesetz werde."<br>
                     <small>- Immanuel Kant</small>
                 </div>
+                <div class="click-hint" id="clickHint1">👆 Klick für Weisheit</div>
             </div>
         </div>
 
@@ -426,6 +458,7 @@
                     "In der Mathematik versteht man die Dinge nicht.<br>Man gewöhnt sich nur an sie."<br>
                     <small>- John von Neumann</small>
                 </div>
+                <div class="click-hint" id="clickHint2">👆 Klick für Weisheit</div>
             </div>
         </div>
 
@@ -482,6 +515,7 @@
                     "Sei du selbst die Veränderung,<br>die du dir wünschst für diese Welt."<br>
                     <small>- Mahatma Gandhi</small>
                 </div>
+                <div class="click-hint" id="clickHint3">👆 Klick für Weisheit</div>
             </div>
         </div>
 
@@ -570,6 +604,7 @@
         <div class="arrow" onclick="previousSlide()">‹</div>
         <div class="arrow" onclick="nextSlide()">›</div>
     </div>
+    <div class="keyboard-hint">⌨️ Nutze Pfeiltasten ← → oder klicke für Navigation</div>
 
     <script>
         let currentSlide = 0;
@@ -620,15 +655,17 @@
             updateSlide();
         }
 
-        // Title slide interaction
+        // Title slide interaction - nur noch Weisheit anzeigen, kein Auto-Weiterschalten
         function showWisdom(index) {
             if (!wisdomShown[index]) {
                 const quote = document.getElementById('wisdomQuote' + index);
+                const hint = document.getElementById('clickHint' + index);
                 quote.classList.add('visible');
+                if (hint) hint.style.display = 'none';
                 wisdomShown[index] = true;
-                setTimeout(() => {
-                    nextSlide();
-                }, 3000);
+            } else {
+                // Wenn Weisheit schon sichtbar ist, zur nächsten Folie
+                nextSlide();
             }
         }
 
@@ -636,19 +673,38 @@
             currentSlide = 0;
             wisdomShown = [false, false, false, false];
             updateSlide();
-            // Hide all wisdom quotes
+            // Hide all wisdom quotes and show hints again
             for (let i = 0; i < 4; i++) {
                 const quote = document.getElementById('wisdomQuote' + i);
+                const hint = document.getElementById('clickHint' + i);
                 if (quote) quote.classList.remove('visible');
+                if (hint) hint.style.display = 'block';
             }
         }
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') previousSlide();
-            if (e.key === 'Home') goToSlide(0);
-            if (e.key === 'End') goToSlide(totalSlides - 1);
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+            if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(0);
+            }
+            if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(totalSlides - 1);
+            }
+            // ESC zum Restart
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                restartPresentation();
+            }
         });
 
         // Touch/Swipe support
